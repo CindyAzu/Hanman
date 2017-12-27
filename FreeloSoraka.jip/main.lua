@@ -166,10 +166,11 @@ menu:header("author", "Author: Cindy")
 
 
 local function findWTarget()
-	local FNTarget = common.GetAllyHeroesInRange(800)
+	local FNTarget = common.GetAllyHeroesInRange(600)
+	local min = math.min
 	for i=1, #FNTarget do
 		local friend = FNTarget[i]
-		if friend and common.GetDistance(friend, player) <= 700 and not friend.isDead and common.GetPercentHealth(friend) < menu.combo.hea.healW:get() then
+		if friend and min(common.GetPercentHealth(friend)) and not friend.isDead and common.GetPercentHealth(friend) < menu.combo.hea.healW:get() then
 		return friend
 		end
 	end
@@ -255,15 +256,6 @@ local function autoUltSelf()
 	end
 end
 
---  local mikafriend = common.GetAllyHeroesInRange(700)
-  --  for i=1, #mikafriend do
-    --    local allies = mikafriend[i]
-      --  if allies and not allies.isDead and menu.combo.x[allies.charName]:get() and common.GetDistance(allies, player) < 700 and (common.HasBuffType(allies, 5) or common.HasBuffType(allies, 11)) or (common.HasBuffType(allies, 8) or common.HasBuffType(allies, 21)) or (common.HasBuffType(allies, 18) or common.HasBuffType(allies, 22)) or (common.HasBuffType(allies, 11) or common.HasBuffType(allies, 24)) then
-        --    for i = 6, 11 do
-          --      local item = player:spellslot(i).name
-            --    if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellslot(i).state == 0 then
-              --      common.DelayAction(function() game.cast("obj", i, allies) end, 0.2)
-                --end
 
 local function Mikaels() --do print/opt
     local mikafriend = common.GetAllyHeroesInRange(700)
