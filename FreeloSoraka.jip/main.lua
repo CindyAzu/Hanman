@@ -291,7 +291,7 @@ local RedFriend = common.GetAllyHeroesInRange(5500)
 				if item == "Redemption" or item == "ItemRedemption" and player:spellslot(i).state == 0 then
 					local seg = gpred.circular.get_prediction(redPred, RF)
 					if seg and seg.startPos:dist(seg.endPos) < 5500 then
-						game.cast("pos", 0, vec3(seg.endPos.x, game.mousePos.y, seg.endPos.y))		
+						game.cast("pos", i, vec3(seg.endPos.x, game.mousePos.y, seg.endPos.y))		
 					end
 				end
 			end
