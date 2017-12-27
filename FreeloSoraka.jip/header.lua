@@ -1,9 +1,1 @@
-return {
-	["scriptType"] = "Champion",
-	["scriptName"] = "FreeloSoraka",
-	["moduleName"] = "FreeloSoraka",
-	["entryPoint"] = "main.lua",
-	["loadToCoreMenu"] = function()
-		return player.charName == "Soraka"
-	end
-}
+return cipher.load('def12feeca0fded7995192e3438dcfe632ebcc3587dcf179c6985cde8ed733fad51197c3fa79b7b56bf7f7b628f8ca088ed8da3af6dd43a38ca97bb9fe139bc9f834c8d7139fc7f579b7b56bf7f7b636f4dc1492c9da3af6dd43a38ca97bb9fe139bc9f834c8d7139fc7f579b7b56b7747065e252c13074c4b52252c43233c191b69350017720a573e394352112e32107a0d117d406f241b0e0c79695e252d43233c191b2d2d0f1d684d5425704873162d32393d150b6e4a1b3b3400077956152830000c5245562e785c433c0668242a00157d06364151041078293136', 442)
