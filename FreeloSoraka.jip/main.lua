@@ -1,4 +1,4 @@
-local version = "1.1"
+local version = "1.2"
 
 local file = io.open(hanbot.luapath.."avada_lib.jip/common.lua", "r")
 if not file then
@@ -105,10 +105,11 @@ local interruptableSpells = {
 }
 
 local menu = menuconfig("Soraka", "Freelo Soraka") -- UNDER CONSTRUCTION
-dts = tSelector(menu, 1100, 2)
-dts:addToMenu()
+
 
 menu:header("head", "Freelo Soraka")
+dts = tSelector(menu, 1100, 2)
+dts:addToMenu()
 menu:menu("combo", "Soraka Settings")
 	menu.combo:boolean("q", "Use Q", true)
 	menu.combo:boolean("w", "Use W", true)
@@ -125,25 +126,18 @@ menu.combo:header("headers", "Heal Settings")
 	
 	
 menu.combo:header("xd", "R Ally Selection")
-	menu.combo:menu("x", "R Ally Selection")
-	
+	menu.combo:menu("x", "R Ally Selection")	--ty coozbie for this
 		local ally = common.GetAllyHeroes()
 		for i, allies in ipairs(ally) do
-			menu.combo.x:boolean(allies.charName, "R Ally?:   "..allies.charName, true) 
+			menu.combo.x:boolean(allies.charName, "R Ally? "..allies.charName, true) 
 		end
-			
 		
 menu.combo:header("xd", "Misc Settings")
-	menu.combo:menu("MK", "Mikael's Settings")
-	
-
-	--local happyness = common.GetAllyHeroes()
-	--for i, mkfriend in ipairs(happyness) do
-	--	menu.combo.MK:boolean(mkfriend.charName, "Use Mikeals: "..mkfriend.charName, true)
-	--end	
-	
-		menu.combo.MK:boolean("AMK", "Auto Mikael's", true)
-		
+	menu.combo:menu("mikz", "Mikeals Ally Selection")
+		for i, allies in ipairs(ally) do
+			menu.combo.mikz:boolean(allies.charName, "Mikeals Ally? "..allies.charName, true)
+		end
+		menu.combo.mikz:boolean("AMK", "Auto Mikael's", true)
 	menu.combo:menu("RED", "Redemption Settings")
 		menu.combo.RED:boolean("Ron", "Use Redemption?", true)
 		menu.combo.RED:slider("RSL", "Use Redemption HP% ", 45, 0, 100, 1)
@@ -167,7 +161,7 @@ menu.combo:menu("drawz", "Draw Settings")
 	menu.combo.drawz:boolean("w", "Draw W Range", true)
 	menu.combo.drawz:boolean("e", "Draw R Range", true)
 	
-menu:header("version", "Version: 1.1")
+menu:header("version", "Version: 1.2")
 menu:header("author", "Author: Cindy")
 
 
@@ -260,16 +254,25 @@ local function autoUltSelf()
 		game.cast("obj", 3, player)
 	end
 end
---and menu.combo.MK[mkfriend.charName]:get()
+
+--  local mikafriend = common.GetAllyHeroesInRange(700)
+  --  for i=1, #mikafriend do
+    --    local allies = mikafriend[i]
+      --  if allies and not allies.isDead and menu.combo.x[allies.charName]:get() and common.GetDistance(allies, player) < 700 and (common.HasBuffType(allies, 5) or common.HasBuffType(allies, 11)) or (common.HasBuffType(allies, 8) or common.HasBuffType(allies, 21)) or (common.HasBuffType(allies, 18) or common.HasBuffType(allies, 22)) or (common.HasBuffType(allies, 11) or common.HasBuffType(allies, 24)) then
+        --    for i = 6, 11 do
+          --      local item = player:spellslot(i).name
+            --    if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellslot(i).state == 0 then
+              --      common.DelayAction(function() game.cast("obj", i, allies) end, 0.2)
+                --end
+
 local function Mikaels() --do print/opt
     local mikafriend = common.GetAllyHeroesInRange(700)
-    for i=1, #mikafriend do
-        local MikaAlly = mikafriend[i]
-        if MikaAlly and not MikaAlly.isDead and common.GetDistance(MikaAlly, player) < 700 and (common.HasBuffType(MikaAlly, 5) or common.HasBuffType(MikaAlly, 11)) or (common.HasBuffType(MikaAlly, 8) or common.HasBuffType(MikaAlly, 21)) or (common.HasBuffType(MikaAlly, 18) or common.HasBuffType(MikaAlly, 22)) or (common.HasBuffType(MikaAlly, 11) or common.HasBuffType(MikaAlly, 24)) then
+    for _, allies in ipairs(mikafriend) do
+        if allies and not allies.isDead and menu.combo.mikz[allies.charName]:get() and common.GetDistance(allies, player) < 700 and (common.HasBuffType(allies, 5) or common.HasBuffType(allies, 11)) or (common.HasBuffType(allies, 8) or common.HasBuffType(allies, 21)) or (common.HasBuffType(allies, 18) or common.HasBuffType(allies, 22)) or (common.HasBuffType(allies, 11) or common.HasBuffType(allies, 24)) then
             for i = 6, 11 do
                 local item = player:spellslot(i).name
                 if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellslot(i).state == 0 then
-                    game.cast("obj", i, MikaAlly)
+                    common.DelayAction(function() game.cast("obj", i, allies) end, 0.2)
                 end
             end
         end
@@ -327,7 +330,7 @@ function on_tick()
 		Redemption()
 	end
 
-	if menu.combo.MK.AMK:get() then 
+	if menu.combo.mikz.AMK:get() then 
 		Mikaels()
 	end
 	
