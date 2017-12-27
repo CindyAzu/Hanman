@@ -33,7 +33,6 @@ function on_tick()
 
 end
 
-
 callback.add(enum.callback.tick, function() on_tick() end)
 
 return {}
