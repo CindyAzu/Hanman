@@ -137,10 +137,10 @@ menu.combo:header("xd", "Misc Settings")
 	menu.combo:menu("MK", "Mikael's Settings")
 	
 
-	local happyness = common.GetAllyHeroes()
-	for i, mkfriend in ipairs(happyness) do
-		menu.combo.MK:boolean(mkfriend.charName, "Use Mikeals: "..mkfriend.charName, true)
-	end	
+	--local happyness = common.GetAllyHeroes()
+	--for i, mkfriend in ipairs(happyness) do
+	--	menu.combo.MK:boolean(mkfriend.charName, "Use Mikeals: "..mkfriend.charName, true)
+	--end	
 	
 		menu.combo.MK:boolean("AMK", "Auto Mikael's", true)
 		
@@ -260,12 +260,12 @@ local function autoUltSelf()
 		game.cast("obj", 3, player)
 	end
 end
-	
+--and menu.combo.MK[mkfriend.charName]:get()
 local function Mikaels() --do print/opt
     local mikafriend = common.GetAllyHeroesInRange(700)
     for i=1, #mikafriend do
         local MikaAlly = mikafriend[i]
-        if MikaAlly and not MikaAlly.isDead and menu.combo.MK[mkfriend.charName]:get() and common.GetDistance(MikaAlly, player) < 700 and (common.HasBuffType(MikaAlly, 5) or common.HasBuffType(MikaAlly, 11)) or (common.HasBuffType(MikaAlly, 8) or common.HasBuffType(MikaAlly, 21)) or (common.HasBuffType(MikaAlly, 18) or common.HasBuffType(MikaAlly, 22)) or (common.HasBuffType(MikaAlly, 11) or common.HasBuffType(MikaAlly, 24)) then
+        if MikaAlly and not MikaAlly.isDead and common.GetDistance(MikaAlly, player) < 700 and (common.HasBuffType(MikaAlly, 5) or common.HasBuffType(MikaAlly, 11)) or (common.HasBuffType(MikaAlly, 8) or common.HasBuffType(MikaAlly, 21)) or (common.HasBuffType(MikaAlly, 18) or common.HasBuffType(MikaAlly, 22)) or (common.HasBuffType(MikaAlly, 11) or common.HasBuffType(MikaAlly, 24)) then
             for i = 6, 11 do
                 local item = player:spellslot(i).name
                 if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellslot(i).state == 0 then
