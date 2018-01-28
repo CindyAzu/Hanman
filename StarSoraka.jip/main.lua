@@ -1,4 +1,4 @@
-local version = "1.41"
+local version = "1.42"
 
 local common = module.load("avada_lib", "common")
 local tSelector = module.load("avada_lib", "targetSelector")
@@ -122,12 +122,19 @@ menu.combo:header("xd", "R and W Ally Selection")
 	menu.combo:menu("x", "R Ally Selection")	--ty coozbie for this
 		local ally = common.GetAllyHeroes()
 		for i, allies in ipairs(ally) do
-			menu.combo.x:boolean(allies.charName, "R Ally? "..allies.charName, true) 
+			menu.combo.x:boolean(allies.charName, "R Ally? "..allies.charName, true)
+			menu.combo.x[allies.charName]:set('value', true)
 		end
+		
+		
+		
 	menu.combo:menu("wconf", "W Ally selection")
 		for i, allies in ipairs(ally) do
-			menu.combo.wconf:boolean(allies.charName, "W Ally? "..allies.charName, true) 
+			menu.combo.wconf:boolean(allies.charName, "W Ally? "..allies.charName, true)
+			menu.combo.wconf[allies.charName]:set('value', true)
 		end
+		
+		
 		
 menu.combo:header("xd", "Misc Settings")
 
@@ -147,7 +154,11 @@ menu.combo:header("xd", "Misc Settings")
 	menu.combo:menu("mikz", "Mikeals Ally Selection")
 		for i, allies in ipairs(ally) do
 			menu.combo.mikz:boolean(allies.charName, "Mikeals Ally? "..allies.charName, true)
+			menu.combo.mikz[allies.charName]:set('value', true)
 		end
+		
+		
+		
 		menu.combo.mikz:boolean("AMK", "Auto Mikael's", true)
 	menu.combo:menu("RED", "Redemption Settings")
 		menu.combo.RED:boolean("Ron", "Use Redemption?", true)
@@ -176,7 +187,7 @@ menu.combo:menu("drawz", "Draw Settings")
 	menu.combo.drawz:boolean("w", "Draw W Range", true)
 	menu.combo.drawz:boolean("e", "Draw R Range", true)
 	
-menu:header("version", "Version: 1.41")
+menu:header("version", "Version: 1.42")
 menu:header("author", "Author: Cindy")
 
 
@@ -385,7 +396,6 @@ function on_tick()
 	end
 	
 end
-
 
 callback.add(enum.callback.recv.spell, function(spell) AInterupt(spell) end)
 callback.add(enum.callback.tick, function() on_tick() end)
