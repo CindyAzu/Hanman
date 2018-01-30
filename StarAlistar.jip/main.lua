@@ -1,4 +1,4 @@
-local version = "0.1"
+local version = "0.2"
 
 
 local common = module.load("avada_lib", "common")
@@ -11,6 +11,71 @@ local draw = module.load("avada_lib", "draw")
 local redPred = {delay = 2.5, radius = 550, speed = math.huge, boundingRadiusMod = 0, range = 5500}
 local enemy = common.GetEnemyHeroes()
 
+local interruptableSpells = {
+	["anivia"] = {
+		{menuslot = "R", slot = 3, spellname = "glacialstorm", channelduration = 6},
+	},
+	["caitlyn"] = {
+		{menuslot = "R", slot = 3, spellname = "caitlynaceinthehole", channelduration = 1},
+	},
+	["ezreal"] = {
+		{menuslot = "R", slot = 3, spellname = "ezrealtrueshotbarrage", channelduration = 1},
+	},
+	["fiddlesticks"] = {
+		{menuslot = "W", slot = 1, spellname = "drain", channelduration = 5},
+		{menuslot = "R", slot = 3, spellname = "crowstorm", channelduration = 1.5},
+	},
+	["gragas"] = {
+		{menuslot = "W", slot = 1, spellname = "gragasw", channelduration = 0.75},
+	},
+	["janna"] = {
+		{menuslot = "R", slot = 3, spellname = "reapthewhirlwind", channelduration = 3},
+	},
+	["karthus"] = {
+		{menuslot = "R", slot = 3, spellname = "karthusfallenone", channelduration = 3},
+	}, --IsValidTarget will prevent from casting @ karthus while he's zombie
+	["katarina"] = {
+		{menuslot = "R", slot = 3, spellname = "katarinar", channelduration = 2.5},
+	},
+	["lucian"] = {
+		{menuslot = "R", slot = 3, spellname = "lucianr", channelduration = 2},
+	},
+	["lux"] = {
+		{menuslot = "R", slot = 3, spellname = "luxmalicecannon", channelduration = 0.5},
+	},
+	["malzahar"] = {
+		{menuslot = "R", slot = 3, spellname = "malzaharr", channelduration = 2.5},
+	},
+	["masteryi"] = {
+		{menuslot = "W", slot = 1, spellname = "meditate", channelduration = 4},
+	},
+	["missfortune"] = {
+		{menuslot = "R", slot = 3, spellname = "missfortunebullettime", channelduration = 3},
+	},
+	["nunu"] = {
+		{menuslot = "R", slot = 3, spellname = "absolutezero", channelduration = 3},
+	},
+	--excluding Orn's Forge Channel since it can be cancelled just by attacking him
+	["pantheon"] = {
+		{menuslot = "R", slot = 3, spellname = "pantheonrjump", channelduration = 2},
+	},
+	["shen"] = {
+		{menuslot = "R", slot = 3, spellname = "shenr", channelduration = 3},
+	},
+	["twistedfate"] = {
+		{menuslot = "R", slot = 3, spellname = "gate", channelduration = 1.5},
+	},
+	["varus"] = {
+		{menuslot = "Q", slot = 0, spellname = "varusq", channelduration = 4},
+	},
+	["warwick"] = {
+		{menuslot = "R", slot = 3, spellname = "warwickr", channelduration = 1.5},
+	},
+	["xerath"] = {
+		{menuslot = "R", slot = 3, spellname = "xerathlocusofpower2", channelduration = 3},
+	}
+}
+
 local menu = menuconfig("Alistar", "Star Guardian Alistar")
 	menu:header("head", "Star Guardian Alistar")
 	dts = tSelector(menu, 1100, 2)
@@ -20,7 +85,22 @@ local menu = menuconfig("Alistar", "Star Guardian Alistar")
 		menu.combo:boolean("w", "Use W", true)
 		menu.combo:boolean("e", "Use E", true)
 		menu.combo:boolean("r", "Use R", true)
-		
+	
+	menu.combo:menu("Gap", "Gapcloser Settings")
+		menu.combo.Gap:boolean("GapA", "Use W against Gapcloser?", true)
+		menu.combo:boolean("interrupt", "Use W to Interrupt Casts", true)
+	menu.combo:menu("interruptmenu", "Interrupt Settings")
+	menu.combo.interruptmenu:header("lol", "Interrupt Settings")
+for i=1, #common.GetEnemyHeroes() do
+	local enemy = common.GetEnemyHeroes()[i]
+	local name = string.lower(enemy.charName)
+	if enemy and interruptableSpells[name] then
+		for v=1, #interruptableSpells[name] do
+			local spell = interruptableSpells[name][v]
+			menu.combo.interruptmenu:boolean(string.format(tostring(enemy.charName) .. tostring(spell.menuslot)), "Interrupt " .. tostring(enemy.charName) .. " " .. tostring(spell.menuslot), true)
+        end
+	end
+end		
 	menu.combo:menu("ults", "R Settings")
 		menu.combo.ults:slider("Rcount", "Use R on Enemy count: ", 1, 1, 5, 1)
 		menu.combo.ults:slider("Rhp", "Use R on HP% ", 35, 0 , 100, 1)
@@ -36,37 +116,13 @@ local menu = menuconfig("Alistar", "Star Guardian Alistar")
 			menu.combo.ults.AntCC:boolean("charmR", "Charm: ", true)
 			menu.combo.ults.AntCC:boolean("knockR", "Knockback/Knockup: Recommended off", false)
 		
-	menu.combo:menu("mikaBF", "Mikeals Buff Settings")
-			menu.combo.mikaBF:boolean("silcen", "Silence: ", false)
-			menu.combo.mikaBF:boolean("sup", "Suppression: ", true)
-			menu.combo.mikaBF:boolean("root", "Root: ", true)
-			menu.combo.mikaBF:boolean("taunt", "Taunt: ", true)
-			menu.combo.mikaBF:boolean("sleep", "Sleep:", true)
-			menu.combo.mikaBF:boolean("stun", "Stun: ", true)
-			menu.combo.mikaBF:boolean("blind", "Blind: ", false)
-			menu.combo.mikaBF:boolean("fear", "Fear: ", true)
-			menu.combo.mikaBF:boolean("charm", "Charm: ", true)
-			menu.combo.mikaBF:boolean("knock", "Knockback/Knockup: Recommended off", false)
-	
-			
-			
-	menu.combo:menu("mikz", "Mikeals Ally Selection")
-		local ally = common.GetAllyHeroes()
-		for i, allies in ipairs(ally) do
-			menu.combo.mikz:boolean(allies.charName, "Mikeals Ally? "..allies.charName, true)
-			menu.combo.mikz[allies.charName]:set('value', true)
-		end
-		menu.combo.mikz:boolean("AMK", "Auto Mikael's", true)
+	menu.combo:header("drHed", "Draw Settings")
+		menu.combo:menu("drawz", "Draw Settings")
+			menu.combo.drawz:boolean("q", "Draw Q Range", true)
+			menu.combo.drawz:boolean("w", "Draw W Range", true)
+			menu.combo.drawz:boolean("e", "Draw E Range", true)
 		
-	menu.combo:menu("RED", "Redemption Settings")
-		menu.combo.RED:boolean("Ron", "Use Redemption?", true)
-		menu.combo.RED:slider("RSL", "Use Redemption HP% ", 45, 0, 100, 1)
-	menu.combo:menu("Locket", "Locket Settings")
-		menu.combo.Locket:boolean("lockA", "Use Locket?", true)
-		menu.combo.Locket:slider("locksli", "Use Locket HP% ", 25, 0 , 100, 1)
-		menu.combo.Locket:slider("lockslic", "Use locket ally count: ", 1, 1, 5, 1)
-		
-	menu:header("version", "Version: 0.1")
+	menu:header("version", "Version: 0.2")
 	menu:header("author", "Author: Cindy")
 	
 local function combo()
@@ -79,62 +135,43 @@ local function combo()
 	if target and menu.combo.q:get() and common.CanUseSpell(0) and common.IsValidTarget(target) and common.GetDistance(target, player) < 365 then
 		game.cast('obj', 0, player)
 	end
-	if target and menu.combo.e:get() and common.IsValidTarget(target) and common.GetDistance(target, player) < 275 then
+	if target and menu.combo.e:get() and common.IsValidTarget(target) and common.GetDistance(target, player) < 350 then
 		game.cast('obj', 2, player)
 	end
 end
 
 local function AutoUlt()
 
-	if common.CanUseSpell(3) and not player.isDead and menu.combo.r:get() and (menu.combo.ults.AntCC.stun:get() and common.HasBuffType(player, 5)) or (menu.combo.ults.AntCC.root:get() and common.HasBuffType(player, 11)) or (menu.combo.ults.AntCC.silcen:get() and common.HasBuffType(player, 7)) or (menu.combo.ults.AntCC.taunt:get() and common.HasBuffType(player, 8)) or (menu.combo.ults.AntCC.sup:get() and common.HasBuffType(player, 24)) or (menu.combo.ults.AntCC.sleep:get() and common.HasBuffType(player, 18)) or (menu.combo.ults.AntCC.charm:get() and common.HasBuffType(player, 22)) or (menu.combo.ults.AntCC.fear:get() and common.HasBuffType(player, 28)) or (menu.combo.ults.AntCC.knock and common.HasBuffType(player, 29)) and #common.GetEnemyHeroesInRange(800, player) >= menu.combo.ults.Rcount:get() and common.GetPercentHealth(player) < menu.combo.ults.Rhp:get() then
+	if common.CanUseSpell(3) and not player.isDead and menu.combo.r:get() and #common.GetEnemyHeroesInRange(800, player) >= menu.combo.ults.Rcount:get() and common.GetPercentHealth(player) < menu.combo.ults.Rhp:get() then
+		if menu.combo.ults.AntCC.stunR:get() and common.HasBuffType(player, 5) or (menu.combo.ults.AntCC.rootR:get() and common.HasBuffType(player, 11)) or (menu.combo.ults.AntCC.silcenR:get() and common.HasBuffType(player, 7)) or (menu.combo.ults.AntCC.tauntR:get() and common.HasBuffType(player, 8)) or (menu.combo.ults.AntCC.supR:get() and common.HasBuffType(player, 24)) or (menu.combo.ults.AntCC.sleepR:get() and common.HasBuffType(player, 18)) or (menu.combo.ults.AntCC.charmR:get() and common.HasBuffType(player, 22)) or (menu.combo.ults.AntCC.fearR:get() and common.HasBuffType(player, 28)) or (menu.combo.ults.AntCC.knockR:get() and common.HasBuffType(player, 29)) then
 		game.cast('obj', 3, player)
-	end
-	
-end
-
-local function Mikaels() --do print/opt
-    local mikafriend = common.GetAllyHeroesInRange(700)
-    for _, allies in ipairs(mikafriend) do
-        if allies and not allies.isDead and menu.combo.mikz[allies.charName]:get() and common.GetDistance(allies, player) < 700 and #common.GetEnemyHeroesInRange(1000, allies) >= 1 then
-			if (menu.combo.mikaBF.stun:get() and common.HasBuffType(allies, 5)) or (menu.combo.mikaBF.root:get() and common.HasBuffType(allies, 11)) or (menu.combo.mikaBF.silcen:get() and common.HasBuffType(allies, 7)) or (menu.combo.mikaBF.taunt:get() and common.HasBuffType(allies, 8)) or (menu.combo.mikaBF.sup:get() and common.HasBuffType(allies, 24)) or (menu.combo.mikaBF.sleep:get() and common.HasBuffType(allies, 18)) or (menu.combo.mikaBF.charm:get() and common.HasBuffType(allies, 22)) or (menu.combo.mikaBF.fear:get() and common.HasBuffType(allies, 28)) or (menu.combo.mikaBF.knock and common.HasBuffType(allies, 29)) then
-				for i = 6, 11 do
-					local item = player:spellslot(i).name
-					if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellslot(i).state == 0 then
-						common.DelayAction(function() game.cast("obj", i, allies) end, 0.2)
-					end	
-				end	
-            end
-        end   
-	end	
-end
-
-local function locketofSolari()
-	local locketFriend = common.GetAllyHeroesInRange(800)
-	for i=1, #locketFriend do
-		local LF = locketFriend[i]
-		if LF and not LF.isDead and menu.combo.Locket.lockA:get() and common.GetPercentHealth(LF) < menu.combo.Locket.locksli:get() and #common.GetEnemyHeroesInRange(900, LF) >= 1 and #common.GetAllyHeroesInRange(600) >= menu.combo.Locket.lockslic:get() then
-			for i = 6, 11 do
-				local item = player:spellslot(i).name
-				if item == "IronStylus" or item == "ItemIronStylus" and player:spellslot(i).state == 0 then
-					game.cast("obj", i, player)
-				end
-			end
 		end
 	end
 end
-	
-local function Redemption()
 
-local RedFriend = common.GetAllyHeroesInRange(5500)
-	for i=1, #RedFriend do
-		local RF = RedFriend[i]
-		if RF and not RF.isDead and menu.combo.RED.Ron:get() and common.GetPercentHealth(RF) < menu.combo.RED.RSL:get() and #common.GetEnemyHeroesInRange(700, RF) >= 1 then
-			for i = 6, 11 do
-				local item = player:spellslot(i).name
-				if item == "Redemption" or item == "ItemRedemption" and player:spellslot(i).state == 0 then
-					local seg = gpred.circular.get_prediction(redPred, RF)
-					if seg and seg.startPos:dist(seg.endPos) < 5500 then
-						game.cast("pos", i, vec3(seg.endPos.x, game.mousePos.y, seg.endPos.y))		
+
+local function WGapcloser()
+	if common.CanUseSpell(2) and menu.combo.Gap.GapA:get() then
+		for i=0, objmanager.enemies_n-1 do
+	    	local dasher = objmanager.enemies[i]
+	    	if dasher and common.IsValidTarget(dasher) and dasher.path.isDashing and dasher.path.active then
+	          	game.cast('obj', 1, dasher)
+	  		end
+		end
+	end
+end
+
+local function AutoInterrupt(spell) -- Thank you Dew for this <3
+	if menu.misc.interrupt:get() and common.CanUseSpell(1) then
+		if spell.owner.type == enum.type.hero and spell.owner.team == enum.team.enemy then
+			local enemyName = string.lower(spell.owner.charName)
+			if interruptableSpells[enemyName] then
+				for i = 1, #interruptableSpells[enemyName] do
+					local spellCheck = interruptableSpells[enemyName][i]
+					if menu.combo.interruptmenu[spell.owner.charName .. spellCheck.menuslot]:get() and string.lower(spell.name) == spellCheck.spellname then
+						if avadaCommon.GetDistance(spell.owner, player) < 650 and common.IsValidTarget(spell.owner) and common.CanUseSpell(1) then
+							game.cast('obj', 1, spell.owner)
+						end
 					end
 				end
 			end
@@ -142,24 +179,32 @@ local RedFriend = common.GetAllyHeroesInRange(5500)
 	end
 end
 
-
-function on_tick()
-
-	if orb.combat.is_active() then
-		combo()
+function on_draw()
+	if menu.combo.drawz.q:get() then
+		glx.world.circle(player.pos, 365, 1, draw.color.red, 50)
 	end
-	if menu.combo.RED.Ron:get() then
-		Redemption()
-	end
-	if menu.combo.mikz.AMK:get() then 
-		Mikaels()
-	end
-	if menu.combo.Locket.lockA:get() then
-		locketofSolari()
+	if menu.combo.drawz.e:get() then
+		glx.world.circle(player.pos, 350, 1, draw.color.deep_sky_blue, 50)
+	end	
+	if menu.combo.drawz.w:get() then
+		glx.world.circle(player.pos, 650, 3, draw.color.red, 50)
 	end
 end
 
 
+function on_tick()
+	if menu.combo.Gap.GapA:get() then
+	WGapcloser()
+	end
+	if orb.combat.is_active() then
+		combo()
+	end
+	if menu.combo.r:get() then
+		AutoUlt()
+	end
+end
+
+callback.add(enum.callback.draw, function() on_draw() end)
 callback.add(enum.callback.tick, function() on_tick() end)
 
 return {}
