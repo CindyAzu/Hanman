@@ -1,5 +1,5 @@
 
-local version = "0.3"
+local version = "0.4"
 
 
 local avada_lib = module.lib('avada_lib')
@@ -161,7 +161,7 @@ local function combo()
 	if target and menu.combo.q:get() and common.IsValidTarget(target) and player:spellSlot(0).state==0 and player.pos2D:dist(target.pos2D) < 365 then
 		player:castSpell('self', 0)
 	end
-	if target and menu.combo.e:get() and not player.isDead and player.pos2D:dist(target.pos2D) < 365 then
+	if target and menu.combo.e:get() and not player.isDead and common.IsValidTarget(target) and player.pos2D:dist(target.pos2D) < 365 then
 		player:castSpell('self', 2)
 	end
 end
@@ -192,9 +192,14 @@ local function WGapcloser()
 	if player:spellSlot(2).state==0 and menu.combo.Gap.GapA:get() then
 		for i=0, objManager.enemies_n - 1 do
 	    	local dasher = objManager.enemies[i]
-	    	if dasher and dasher.path.isDashing and dasher.path.active then
-	          	player:castSpell('obj', 1, dasher)
-	  		end
+			if dasher.type == TYPE_HERO and dasher.team == TEAM_ENEMY then
+				if dasher and common.IsValidTarget(dasher) and dasher.path.isActive and dasher.path.isDashing and player.pos:dist(dasher.path.point[1]) < 650 then
+					if player.pos2D:dist(dasher.path.point2D[1]) < player.pos2D:dist(dasher.path.point2D[0]) then
+						print("working")
+						player:castSpell('obj', 1, dasher)
+					end
+				end
+			end
 		end
 	end
 end
