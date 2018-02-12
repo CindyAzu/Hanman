@@ -141,7 +141,7 @@ end
 			menu.combo.drawz:boolean("w", "Draw W Range", true)
 			menu.combo.drawz:boolean("e", "Draw E and Insec Range", true)
 		
-	menu:header("version", "Version: 0.3")
+	menu:header("version", "Version: 0.4")
 	menu:header("author", "Author: Cindy")
 	
 local cleanseSlot = nil -- ty cooz for lightweight method of check instead of for loop
