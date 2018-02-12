@@ -1,4 +1,4 @@
-local version = "1.42"
+local version = "1.43"
 
 local avada_lib = module.lib('avada_lib')
 if not avada_lib then
@@ -178,7 +178,7 @@ menu.combo:menu("drawz", "Draw Settings")
 	menu.combo.drawz:boolean("w", "Draw W Range", true)
 	menu.combo.drawz:boolean("e", "Draw E Range", true)
 	
-menu:header("version", "Version: 1.42")
+menu:header("version", "Version: 1.43")
 menu:header("author", "Author: Cindy")
 
 local function findWTarget()
