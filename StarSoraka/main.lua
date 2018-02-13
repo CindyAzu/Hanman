@@ -1,4 +1,4 @@
-local version = "1.43"
+local version = "1.44"
 
 local avada_lib = module.lib('avada_lib')
 if not avada_lib then
@@ -178,7 +178,7 @@ menu.combo:menu("drawz", "Draw Settings")
 	menu.combo.drawz:boolean("w", "Draw W Range", true)
 	menu.combo.drawz:boolean("e", "Draw E Range", true)
 	
-menu:header("version", "Version: 1.43")
+menu:header("version", "Version: 1.44")
 menu:header("author", "Author: Cindy")
 
 local function findWTarget()
@@ -226,22 +226,17 @@ local function Combo()
 	local target = dts.target
 	for i, allies in ipairs(ally) do
 		if Wtarget and player:spellSlot(1).state == 0 and menu.combo.w:get() and common.GetPercentHealth(Wtarget) < menu.combo.hea.healW:get() and menu.combo.wconf[allies.charName]:get() then
-			print("Wtarget = " .. tostring(Wtarget))
-			print("Casting Astral Infusion")
 			player:castSpell("obj", 1, Wtarget)
 		end
 	end
 	if target and player:spellSlot(2).state == 0 and common.IsValidTarget(target) and menu.combo.e:get() then
-		print("Qtarget = " .. tostring(target))
-		print("Silencing Target")
+
 		Silence(target)
 	end
 	if target and player:spellSlot(0).state == 0 and common.IsValidTarget(target) and menu.combo.q:get() then
 		if menu.combo.QK:get() and common.GetPercentHealth(target) < 6 and Wtarget.pos2D:dist(target.pos2D) < 500 then
 		print("im a good girl!")
 		else
-		print("Qtarget = " .. tostring(target))
-		print("Calling Starfall")
 		Starfall(target)
 		end
 	end
@@ -269,12 +264,11 @@ end
 local function EGapcloser()
 	if menu.combo.Gap.GapA:get() and player:spellSlot(2).state == 0 then
     local enemies = common.GetEnemyHeroes()
-			for i = 1, #enemies do
-			  local enemy = enemies[i]
-				if common.IsValidTarget(enemy) and enemy.path.isActive and enemy.path.isDashing then
-					if player.pos2D:dist(enemy.path.point2D[1]) < 925 then
-						player:castSpell("pos", 2, vec3(enemy.path.point2D[1].x, game.mousePos.y, enemy.path.point2D[1].y))
-					end
+		for i=0, objManager.enemies_n - 1 do
+			local enemy = objManager.enemies[i]
+			if enemy.type == TYPE_HERO and enemy.team == TEAM_ENEMY then
+				if common.IsValidTarget(enemy) and enemy.path.isActive and enemy.path.isDashing and player.pos2D:dist(enemy.path.point2D[1]) < 925  then
+					player:castSpell("pos", 2, vec3(enemy.path.point2D[1].x, game.mousePos.y, enemy.path.point2D[1].y))
 				end
 			end
 		end
