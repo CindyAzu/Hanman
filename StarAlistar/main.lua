@@ -181,7 +181,7 @@ local function Insec()
 	local target = dts.target
 	if menu.combo.IT:get() then
 		player:move(game.mousePos)
-		if target  and common.IsValidTarget(target) and player.pos2D:dist(target.pos2D) < 390 and player:spellSlot(1).state == 0 then
+		if target and player:spellSlot(flashSlot).state == 0 and player:spellSlot(1).state == 0 and common.IsValidTarget(target) and player.pos2D:dist(target.pos2D) < 390 then
 			player:castSpell("pos", flashSlot, vec3(player.pos:lerp(target.pos, 1.1)))
 			orb.core.set_server_pause()
 			player:castSpell("obj", 1, target)
