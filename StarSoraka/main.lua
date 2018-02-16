@@ -156,6 +156,36 @@ menu.combo:header("xd", "R and W Ally Selection")
 		
 		
 menu.combo:header("xd", "Misc Settings")
+
+
+	menu.combo:menu("mikaBF", "Mikeals Buff Settings")
+			menu.combo.mikaBF:boolean("silcen", "Silence: ", false)
+			menu.combo.mikaBF:boolean("sup", "Suppression: ", true)
+			menu.combo.mikaBF:boolean("root", "Root: ", true)
+			menu.combo.mikaBF:boolean("taunt", "Taunt: ", true)
+			menu.combo.mikaBF:boolean("sleep", "Sleep:", true)
+			menu.combo.mikaBF:boolean("stun", "Stun: ", true)
+			menu.combo.mikaBF:boolean("blind", "Blind: ", false)
+			menu.combo.mikaBF:boolean("fear", "Fear: ", true)
+			menu.combo.mikaBF:boolean("charm", "Charm: ", true)
+			menu.combo.mikaBF:boolean("knock", "Knockback/Knockup: Recommended off", false)
+			
+			
+	menu.combo:menu("mikz", "Mikeals Ally Selection")
+		for i, allies in ipairs(ally) do
+			menu.combo.mikz:boolean(allies.charName, "Mikeals Ally? "..allies.charName, true)
+			menu.combo.mikz[allies.charName]:set('value', true)
+		end
+		menu.combo.mikz:boolean("AMK", "Auto Mikael's", true)
+	menu.combo:menu("RED", "Redemption Settings")
+		menu.combo.RED:boolean("Ron", "Use Redemption?", true)
+		menu.combo.RED:slider("RSL", "Use Redemption HP% ", 45, 0, 100, 1)
+	menu.combo:menu("Locket", "Locket Settings")
+		menu.combo.Locket:boolean("lockA", "Use Locket?", true)
+		menu.combo.Locket:slider("locksli", "Use Locket HP% ", 25, 0 , 100, 1)
+		menu.combo.Locket:slider("lockslic", "Use locket ally count: ", 1, 1, 4, 1)
+		
+		
 	menu.combo:menu("Gap", "Gapcloser Settings")
 		menu.combo.Gap:boolean("GapA", "Use E against Gapcloser?", true)
 
@@ -178,7 +208,7 @@ menu.combo:menu("drawz", "Draw Settings")
 	menu.combo.drawz:boolean("w", "Draw W Range", true)
 	menu.combo.drawz:boolean("e", "Draw E Range", true)
 	
-menu:header("version", "Version: 1.44")
+menu:header("version", "Version: 1.45")
 menu:header("author", "Author: Cindy")
 
 local function findWTarget()
@@ -233,7 +263,7 @@ local function Combo()
 
 		Silence(target)
 	end
-	if target and player:spellSlot(0).state == 0 and common.IsValidTarget(target) and menu.combo.q:get() then
+	if target and player:spellSlot(0).state == 0 and common.IsValidTarget(target) and menu.combo.q:get() and target.isVisible then
 		if menu.combo.QK:get() and common.GetPercentHealth(target) < 6 and Wtarget.pos2D:dist(target.pos2D) < 500 then
 		print("im a good girl!")
 		else
@@ -263,7 +293,6 @@ end
 
 local function EGapcloser()
 	if menu.combo.Gap.GapA:get() and player:spellSlot(2).state == 0 then
-    local enemies = common.GetEnemyHeroes()
 		for i=0, objManager.enemies_n - 1 do
 			local enemy = objManager.enemies[i]
 			if enemy.type == TYPE_HERO and enemy.team == TEAM_ENEMY then
@@ -278,7 +307,7 @@ end
 
 local function autoUltSelf()
 
-	if player:spellSlot(3).state~=0 and not player.isDead and #common.GetEnemyHeroesInRange(700, player) >= 1 and menu.combo.r:get() and menu.combo.hea.ults:get() and common.GetPercentHealth(player) <= menu.combo.hea.ahps:get() then
+	if player:spellSlot(3).state==0 and not player.isDead and #common.GetEnemyHeroesInRange(700, player) >= 1 and menu.combo.r:get() and menu.combo.hea.ults:get() and common.GetPercentHealth(player) <= menu.combo.hea.ahps:get() then
 		player:castSpell("self", 3)
 	end
 end
@@ -294,6 +323,60 @@ local function AutoUlt()
 	end
 end
 
+
+
+local function Mikaels() --do print/opt
+	local mikafriend = common.GetAllyHeroesInRange(700)
+	for i = 1, #mikafriend do
+	local allies = mikafriend[i]
+		if allies and not allies.isDead and menu.combo.mikz[allies.charName]:get() and player.pos2D:dist(allies.pos2D) < 700 and #common.GetEnemyHeroesInRange(1000, allies) >= 1 then
+			if (menu.combo.mikaBF.stun:get() and common.HasBuffType(allies, 5)) or (menu.combo.mikaBF.root:get() and common.HasBuffType(allies, 11)) or (menu.combo.mikaBF.silcen:get() and common.HasBuffType(allies, 7)) or (menu.combo.mikaBF.taunt:get() and common.HasBuffType(allies, 8)) or (menu.combo.mikaBF.sup:get() and common.HasBuffType(allies, 24)) or (menu.combo.mikaBF.sleep:get() and common.HasBuffType(allies, 18)) or (menu.combo.mikaBF.charm:get() and common.HasBuffType(allies, 22)) or (menu.combo.mikaBF.fear:get() and common.HasBuffType(allies, 28)) or (menu.combo.mikaBF.knock and common.HasBuffType(allies, 29)) then
+				for i = 6, 11 do
+					local item = player:spellSlot(i).name
+					if item == "MorellosBane" or item == "ItemMorellosBane" and player:spellSlot(i).state == 0 then
+						player:castSpell("obj", i, allies)
+					end	
+				end	
+			end
+		end   
+	end	
+end
+
+local function locketofSolari()
+	local locketFriend = common.GetAllyHeroesInRange(800)
+	for i=1, #locketFriend do
+		local LF = locketFriend[i]
+		if LF and not LF.isDead and menu.combo.Locket.lockA:get() and common.GetPercentHealth(LF) < menu.combo.Locket.locksli:get() and #common.GetEnemyHeroesInRange(900, LF) >= 1 and #common.GetAllyHeroesInRange(600) >= menu.combo.Locket.lockslic:get() then
+			for i = 6, 11 do
+				local item = player:spellSlot(i).name
+				if item == "IronStylus" or item == "ItemIronStylus" and player:spellSlot(i).state == 0 then
+					player:castSpell("obj", i, player)
+				end
+			end
+		end
+	end
+end
+	
+local function Redemption()
+
+local RedFriend = common.GetAllyHeroesInRange(5500)
+	for i=1, #RedFriend do
+		local RF = RedFriend[i]
+		if RF and not RF.isDead and menu.combo.RED.Ron:get() and common.GetPercentHealth(RF) < menu.combo.RED.RSL:get() and #common.GetEnemyHeroesInRange(700, RF) >= 1 then
+			for i = 6, 11 do
+				local item = player:spellSlot(i).name
+				if item == "Redemption" or item == "ItemRedemption" and player:spellSlot(i).state == 0 then
+					local seg = gpred.circular.get_prediction(redPred, RF)
+					if seg and seg.startPos:dist(seg.endPos) < 5500 then
+						player:castSpell("pos", i, vec3(seg.endPos.x, game.mousePos.y, seg.endPos.y))		
+					end
+				end
+			end
+		end
+	end
+end
+
+
 local function on_draw()
 	if menu.combo.drawz.q:get() then
 		graphics.draw_circle(player.pos, 800, 1, 0xffff0000, 50)
@@ -308,6 +391,16 @@ end
 
 local function on_tick()
 
+	if menu.combo.Locket.lockA:get() then
+		locketofSolari()
+	end
+	
+	if menu.combo.RED.Ron:get() then
+		Redemption()
+	end
+	
+		Mikaels()
+		
 	if menu.combo.Gap.GapA:get() then
 	EGapcloser()
 	end
