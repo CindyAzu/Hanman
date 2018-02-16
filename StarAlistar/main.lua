@@ -144,21 +144,23 @@ end
 	menu:header("version", "Version: 0.4")
 	menu:header("author", "Author: Cindy")
 	
-local cleanseSlot = nil -- ty cooz for lightweight method of check instead of for loop
+local flashSlot = nil -- ty cooz for lightweight method of check instead of for loop
 if player:spellSlot(4).name == "SummonerFlash" then
 	flashSlot = 4
 elseif player:spellSlot(5).name == "SummonerFlash" then
 	flashSlot = 5
 end
+
+
 	
 local function combo()
 
 	local target = dts.target
 	
-	if target and menu.combo.w:get() and common.IsValidTarget(target) and player:spellSlot(1).state==0 and player:spellSlot(0).state==0 and player.pos2D:dist(target.pos2D) > 365 and player.pos2D:dist(target.pos2D) < 650 then
+	if target and menu.combo.w:get() and target.isVisible and common.IsValidTarget(target) and player:spellSlot(1).state==0 and player:spellSlot(0).state==0 and player.pos2D:dist(target.pos2D) > 365 and player.pos2D:dist(target.pos2D) < 650 then
 		player:castSpell('obj', 1, target)
 	end
-	if target and menu.combo.q:get() and common.IsValidTarget(target) and player:spellSlot(0).state==0 and player.pos2D:dist(target.pos2D) < 365 then
+	if target and menu.combo.q:get() and target.isVisible and common.IsValidTarget(target) and player:spellSlot(0).state==0 and player.pos2D:dist(target.pos2D) < 365 then
 		player:castSpell('self', 0)
 	end
 	if target and menu.combo.e:get() and not player.isDead and common.IsValidTarget(target) and player.pos2D:dist(target.pos2D) < 365 then
@@ -169,7 +171,7 @@ end
 local function AutoUlt()
 
 	if player:spellSlot(3).state==0 and not player.isDead and menu.combo.r:get() and #common.GetEnemyHeroesInRange(800, player) >= menu.combo.ults.Rcount:get() and common.GetPercentHealth(player) < menu.combo.ults.Rhp:get() then
-		if menu.combo.ults.AntCC.stunR:get() and player.buff.type['5'] or (menu.combo.ults.AntCC.rootR:get() and player.buff.type['11']) or (menu.combo.ults.AntCC.silcenR:get() and player.buff.type['7']) or (menu.combo.ults.AntCC.tauntR:get() and player.buff.type['8']) or (menu.combo.ults.AntCC.supR:get() and player.buff.type['24']) or (menu.combo.ults.AntCC.sleepR:get() and player.buff.type['18']) or (menu.combo.ults.AntCC.charmR:get() and player.buff.type['22']) or (menu.combo.ults.AntCC.fearR:get() and player.buff.type['28']) or (menu.combo.ults.AntCC.knockR:get() and player.buff.type['29']) then
+		if menu.combo.ults.AntCC.stunR:get() and common.HasBuffType(player, 5) or (menu.combo.ults.AntCC.rootR:get() and common.HasBuffType(player, 11)) or (menu.combo.ults.AntCC.silcenR:get() and common.HasBuffType(player, 7)) or (menu.combo.ults.AntCC.tauntR:get() and common.HasBuffType(player, 8)) or (menu.combo.ults.AntCC.supR:get() and common.HasBuffType(player, 24)) or (menu.combo.ults.AntCC.sleepR:get() and common.HasBuffType(player, 18)) or (menu.combo.ults.AntCC.charmR:get() and common.HasBuffType(player, 22)) or (menu.combo.ults.AntCC.fearR:get() and common.HasBuffType(player, 28)) or (menu.combo.ults.AntCC.knockR:get() and common.HasBuffType(player, 29)) then
 		player:castSpell('self', 3)
 		end
 	end
@@ -195,7 +197,6 @@ local function WGapcloser()
 			if dasher.type == TYPE_HERO and dasher.team == TEAM_ENEMY then
 				if dasher and common.IsValidTarget(dasher) and dasher.path.isActive and dasher.path.isDashing and player.pos:dist(dasher.path.point[1]) < 650 then
 					if player.pos2D:dist(dasher.path.point2D[1]) < player.pos2D:dist(dasher.path.point2D[0]) then
-						print("working")
 						player:castSpell('obj', 1, dasher)
 					end
 				end
