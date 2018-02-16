@@ -186,8 +186,9 @@ menu.combo:header("xd", "Misc Settings")
 		menu.combo.Locket:slider("lockslic", "Use locket ally count: ", 1, 1, 4, 1)
 		
 		
-	menu.combo:menu("Gap", "Gapcloser Settings")
+	menu.combo:menu("Gap", "Gapcloser Settings and Silence settings")
 		menu.combo.Gap:boolean("GapA", "Use E against Gapcloser?", true)
+		menu.combo.Gap:boolean("GapS", "Use E on CC?", true)
 
 	menu.combo:menu("interruptM", "Interrupt Settings")
 menu.combo.interruptM:header("Interpgg", "Interrupt Author: Dewblackio2")
@@ -210,6 +211,15 @@ menu.combo:menu("drawz", "Draw Settings")
 	
 menu:header("version", "Version: 1.45")
 menu:header("author", "Author: Cindy")
+
+local scary_buffs = {
+  [5] = true,
+  [8] = true,
+	[11] = true,
+  [18] = true,
+	[24] = true,
+  [29] = true
+}
 
 local function findWTarget()
     local FNTarget = common.GetAllyHeroesInRange(800)
@@ -296,7 +306,7 @@ local function EGapcloser()
 		for i=0, objManager.enemies_n - 1 do
 			local enemy = objManager.enemies[i]
 			if enemy.type == TYPE_HERO and enemy.team == TEAM_ENEMY then
-				if common.IsValidTarget(enemy) and enemy.path.isActive and enemy.path.isDashing and player.pos2D:dist(enemy.path.point2D[1]) < 925  then
+				if enemy and common.IsValidTarget(enemy) and enemy.path.isActive and enemy.path.isDashing and player.pos2D:dist(enemy.path.point2D[1]) < 925  then
 					player:castSpell("pos", 2, vec3(enemy.path.point2D[1].x, game.mousePos.y, enemy.path.point2D[1].y))
 				end
 			end
@@ -304,9 +314,20 @@ local function EGapcloser()
 	end
 end
 
+local function on_CC(buff)
+  if buff and scary_buffs[buff.type] and menu.combo.Gap.GapS:get() and player:spellSlot(2).state == 0 then
+    local owner = buff.owner
+    if owner.type == TYPE_HERO and owner.team == TYPE_ENEMY then
+      if owner.pos:distSqr(player.pos) < 925*925 then
+        player:castSpell("pos", 2, vec3(owner.pos.x, game.mousePos.y, owner.pos.y))
+      end
+    end
+  end
+end
+
 
 local function autoUltSelf()
-
+  
 	if player:spellSlot(3).state==0 and not player.isDead and #common.GetEnemyHeroesInRange(700, player) >= 1 and menu.combo.r:get() and menu.combo.hea.ults:get() and common.GetPercentHealth(player) <= menu.combo.hea.ahps:get() then
 		player:castSpell("self", 3)
 	end
@@ -401,6 +422,8 @@ local function on_tick()
 	
 		Mikaels()
 		
+		on_CC()
+		
 	if menu.combo.Gap.GapA:get() then
 	EGapcloser()
 	end
@@ -415,6 +438,7 @@ local function on_tick()
 	
 end
 
+cb.add(cb.updatebuff, on_CC)
 cb.add(cb.spell, AInterupt)
 cb.add(cb.tick, on_tick)
 cb.add(cb.draw, on_draw)
